@@ -41,7 +41,7 @@ def sql_parser(sql: str) -> dict:
             
             return mid_lang
 
-        id = __return_id_from_where_clause(raw_sql_splited)
+        id = __return_id(raw_sql_splited)
 
         data_between_parentheses: list = re.findall(r"\((.*?)\)", sql, re.MULTILINE)
 
@@ -55,7 +55,7 @@ def sql_parser(sql: str) -> dict:
     if "UPDATE" in sql:
         table_name = raw_sql_splited[1]
 
-        id = __return_id_from_where_clause(raw_sql_splited)
+        id = __return_id(raw_sql_splited)
         
         columns = re.findall(r"\w* = '\w*'", sql, re.MULTILINE)
 
@@ -75,7 +75,7 @@ def sql_parser(sql: str) -> dict:
         return mid_lang
 
     if "DELETE" in sql:
-        id = __return_id_from_where_clause(raw_sql_splited)
+        id = __return_id(raw_sql_splited)
 
         table_name = raw_sql_splited[raw_sql_splited.index("FROM") + 1]
 
@@ -85,7 +85,7 @@ def sql_parser(sql: str) -> dict:
 
         return mid_lang
 
-def __return_id_from_where_clause(sql_splited: list) -> str:
+def __return_id(sql_splited: list) -> str:
     id_position = sql_splited.index("WHERE") + 3
     id = sql_splited[id_position]
 

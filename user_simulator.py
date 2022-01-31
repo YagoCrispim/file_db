@@ -1,4 +1,4 @@
-from src.main import run
+from FileDB import run
 
 try:
     # SELECT's

@@ -1,4 +1,4 @@
-from src.main import run
+from src.FileDB import run
 
 def test_run_valid_query():
     raw_sql = 'select * from test'
