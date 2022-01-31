@@ -1,31 +1,65 @@
 # FileDB
-<!-- # ChaozzDBPy
 
 ## About
 
-   ![image](https://user-images.githubusercontent.com/2658126/94922899-60754800-0491-11eb-8763-573a408fd630.png) [![Testing](https://github.com/igoiglesias/chaozzDBPy/actions/workflows/python-app-testing.yml/badge.svg?branch=master)](https://github.com/igoiglesias/chaozzDBPy/actions/workflows/python-app-testing.yml)
-    
-   ChaozzDBPy is a python implementation based on the original <a target="_blank" href="https://github.com/chaozznl/chaozzDB">ChaozzDB</a> from <a target="_blank" href="https://github.com/chaozznl">Chaozznl</a> with some new features.
+- FileDB is an extension of the <a target="_blank" href="https://github.com/igoiglesias/chaozzDBPy">ChaozzDBPy implementation</a>.
 
-   The main propouse here is to implement a noSQL DB with a simplified SQL syntax.
-#### It is still in the first steps, feel free to contribute!
+- FileDB is a database that stores data into text files.
+
+- The main pourpose of this project is to implement a noSQL DB with a simplified SQL syntax.
 
 ## Setup
 
-   ### Create the virtualenv
-     
-        virtualenv -p 3.8 venv && source venv/bin/activate
-     
-   ### Install requirements
-        
-        pip install -r requirements.txt
+- ### Create the virtualenv
 
-## Use
+  ```bash
+  virtualenv -p 3.8 .venv
+  ```
 
-   
-    from chaozzDBPy import ChaozzDBPy
+- ### Activate the virtualenv
 
-    db = ChaozzDBPy()
-    insert = db.query(
-        "INSERT INTO user (name, password, email) VALUES ('Jane','1234','jane@doh.com')"
-    ) -->
+  ```bash
+  source .venv/bin/activate
+  ```
+
+- ### Install requirements
+
+  ```bash
+  pip install -r requirements.txt
+  ```
+
+## Usage
+
+- ### INSERT
+
+  ```python
+      from FileDB import run
+
+      run("insert into users (name, age, grade) values ('John Doe','35','5'), ('Foo Bar','40','10')")
+  ```
+
+- ### SELECT
+
+  ```python
+      from FileDB import run
+
+      users = run("select * from users")
+
+      print(users)
+  ```
+
+- ### UPDATE
+
+  ```python
+    from FileDB import run
+
+    run("update users set name = 'John Foo' where id = 1")
+  ```
+
+- ### DELETE
+
+  ```python
+    from FileDB import run
+
+    run("delete from users where id = 1")
+  ```
