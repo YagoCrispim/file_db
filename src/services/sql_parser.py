@@ -3,108 +3,93 @@ import re
 
 def sql_parser(sql: str) -> dict:
     mid_lang: dict = {}
+    raw_sql_splited: list = sql.split(" ")
 
     if "INSERT" in sql:
+        table_name: str = raw_sql_splited[2]
 
-        data: list = []
-        regex = r"\((.*?)\)"
+        data_between_parentheses: list = re.findall(r"\((.*?)\)", sql, re.MULTILINE)
+        
+        new_data: list = []
+        columns: list = data_between_parentheses[0].split(",")
 
-        sql_splited: list = sql.split(" ")
-        table_name: str = sql_splited[2]
+        for idx, item in enumerate(data_between_parentheses):
+            if idx == 0: continue
 
-        between_parentheses: list = re.findall(regex, sql, re.MULTILINE)
-        columns: list = between_parentheses[0].split(",")
+            data_element: list = []
+            item_splited: list = item.split(",")
 
-        for idx, item in enumerate(between_parentheses):
-            if idx != 0:
-                el: list = []
-                item_splited: list = item.split(",")
+            for i in item_splited:
+                data_element.append(i.replace('"', ""))
 
-                for i in item_splited:
-                    el.append(i.replace('"', ""))
-
-                data.append(el)
+            new_data.append(data_element)
 
         mid_lang["action"] = "INSERT"
         mid_lang["columns"] = columns
-        mid_lang["data"] = data
+        mid_lang["data"] = new_data
         mid_lang["table_name"] = table_name
 
         return mid_lang
 
     if "SELECT" in sql:
-        query_splited = sql.split(" ")
-        table_name = query_splited[query_splited.index("FROM") + 1]
+        table_name = raw_sql_splited[raw_sql_splited.index("FROM") + 1]
 
-        mid_lang["action"] = "SELECT"
-        mid_lang["table_name"] = table_name
-
-        if "*" in query_splited:
+        if "*" in raw_sql_splited:
+            mid_lang["action"] = "SELECT"
             mid_lang["columns"] = "*"
+            mid_lang["table_name"] = table_name
+            
             return mid_lang
 
-        regex = r"\((.*?)\)"
-        columns = re.findall(regex, sql, re.MULTILINE)
+        id = __return_id_from_where_clause(raw_sql_splited)
 
-        mid_lang["columns"] = columns[0].split(",")
+        data_between_parentheses: list = re.findall(r"\((.*?)\)", sql, re.MULTILINE)
 
-        id_position = query_splited.index("WHERE") + 3
-        id = query_splited[id_position]
-
-        if int(id) < 0:
-            raise Exception("Id cannot be 0 or negative.")
-
-        # FIX: tem forma melhor de pegar o id
+        mid_lang["action"] = "SELECT"
+        mid_lang["columns"] = data_between_parentheses[0].split(",")
+        mid_lang["table_name"] = table_name
         mid_lang["where"] = {"id": id}
 
         return mid_lang
 
     if "UPDATE" in sql:
+        table_name = raw_sql_splited[1]
 
-        query_splited = sql.split(" ")
-        table_name = query_splited[1]
-
-        # FIX: tem forma melhor de pegar o id
-        id_position = query_splited.index("WHERE") + 3
-        id = query_splited[id_position]
-
-        if int(id) < 0:
-            raise Exception("Id cannot be 0 or negative.")
+        id = __return_id_from_where_clause(raw_sql_splited)
+        
+        columns = re.findall(r"\w* = '\w*'", sql, re.MULTILINE)
 
         data_obj = {}
-        reg = regex = r"\w* = '\w*'"
-        columns = re.findall(reg, sql, re.MULTILINE)
-
         for column in columns:
             column_splited = column.split(" = ")
             data_obj[column_splited[0]] = column_splited[1].replace("'", "")
 
-
-        # FIX: tem forma melhor de pegar o id
-        set_stmt_position = query_splited.index("SET")
-        column = query_splited[set_stmt_position + 1]
+        set_stmt_position = raw_sql_splited.index("SET")
+        column = raw_sql_splited[set_stmt_position + 1]
 
         mid_lang["action"] = "UPDATE"
-        mid_lang["table_name"] = table_name
         mid_lang["data"] = data_obj
+        mid_lang["table_name"] = table_name
         mid_lang["where"] = {"id": id}
 
         return mid_lang
 
     if "DELETE" in sql:
-        query_splited = sql.split(" ")
-        table_name = query_splited[query_splited.index("FROM") + 1]
+        id = __return_id_from_where_clause(raw_sql_splited)
 
-        mid_lang["table_name"] = table_name
-
-        id_position = query_splited.index("WHERE") + 3
-        id = query_splited[id_position]
-
-        if int(id) < 0:
-            raise Exception("Id cannot be 0 or negative.")
+        table_name = raw_sql_splited[raw_sql_splited.index("FROM") + 1]
 
         mid_lang["action"] = "DELETE"
-        # FIX: tem forma melhor de pegar o id
+        mid_lang["table_name"] = table_name
         mid_lang["where"] = {"id": id}
 
         return mid_lang
+
+def __return_id_from_where_clause(sql_splited: list) -> str:
+    id_position = sql_splited.index("WHERE") + 3
+    id = sql_splited[id_position]
+
+    if int(id) < 0 or int(id) == 0:
+        raise Exception("Id cannot be 0 or negative.")
+
+    return id
