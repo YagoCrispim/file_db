@@ -1,4 +1,3 @@
-from ast import Try
 from src.services.sql_parser import sql_parser
 
 
@@ -19,6 +18,13 @@ def test_should_generate_valid_select_all_midlang():
 def test_should_generate_valid_select_specific_midlang():
     res = sql_parser("SELECT (name, age) FROM test WHERE id = 1")
     valid_midlang = {'action': 'SELECT', 'table_name': 'test', 'columns': ['name', ' age'], 'where': {'id': '1'}}
+
+    assert res == valid_midlang
+
+
+def test_should_generate_valid_select_specific_col__and_where_stmt_midlang():
+    res = sql_parser("SELECT (name, grade) FROM test WHERE age = '35'")
+    valid_midlang = {'action': 'SELECT', 'columns': ['name', ' grade'], 'table_name': 'test', 'where': {'age': "'35'"}}
 
     assert res == valid_midlang
 

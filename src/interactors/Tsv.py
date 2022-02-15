@@ -49,10 +49,11 @@ class Tsv:
 
 
     def select(self, query: dict):
-        if query['columns'] == '*':
+        res = []
+
+        if query['columns'] == '*' and not "where" in query.keys():
             table = self.read_from_file(self.__location + query["table_name"] + self.__extension)
             
-            res = []
             for item in table:
                 if item == '\n': continue
 
@@ -64,26 +65,24 @@ class Tsv:
         header_map = self.map_data_obj_to_file_columns(query["table_name"])
         table = self.read_from_file(self.__location + query["table_name"] + self.__extension)
 
-        res = []
         for item in table:
-            part_result = []
-
-            line = item.split('\t')[:-1]
-
-            line = self.format_data(line, is_header=False)
-            line = line.split('\t')[:-1]
-
-            columns_to_return = query['columns']
+            items_in_column = item.split('\t')[:-1]
             
-            col_index = []
-            for column in columns_to_return:
-                col = column.replace(' ', '')
-                col_index.append(header_map[col])
+            col_to_filter = next(iter(query['where']))
+            value_to_find = query['where'][col_to_filter]
+            col_value = items_in_column[header_map[col_to_filter]]
 
-            for i in col_index:
-                part_result.append(line[i])
-            
-            res.append(part_result)
+            if col_value == value_to_find:
+                if query["columns"][0] == "*":
+                    res.append([item.replace('\t', ' ').rstrip()])
+                else:
+                    col_result = []
+                    for col in query["columns"]:
+                        col_name = col.replace(' ', '')
+                        col_value = items_in_column[header_map[col_name]]
+                        col_result.append(col_value)
+
+                    res.append(col_result)
 
         return res
 

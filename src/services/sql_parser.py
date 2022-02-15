@@ -34,28 +34,30 @@ def sql_parser(sql: str) -> dict:
     if "SELECT" in sql:
         table_name = raw_sql_splited[raw_sql_splited.index("FROM") + 1]
 
-        if "*" in raw_sql_splited:
+        if not "WHERE" in raw_sql_splited and "*" in raw_sql_splited:
             mid_lang["action"] = "SELECT"
             mid_lang["columns"] = "*"
             mid_lang["table_name"] = table_name
             
             return mid_lang
 
-        id = __return_id(raw_sql_splited)
+        where_condition = __return_where_condition(raw_sql_splited)
 
         data_between_parentheses: list = re.findall(r"\((.*?)\)", sql, re.MULTILINE)
+        
+        if not data_between_parentheses: data_between_parentheses = "*"
 
         mid_lang["action"] = "SELECT"
         mid_lang["columns"] = data_between_parentheses[0].split(",")
         mid_lang["table_name"] = table_name
-        mid_lang["where"] = {"id": id}
+        mid_lang["where"] = where_condition
 
         return mid_lang
 
     if "UPDATE" in sql:
         table_name = raw_sql_splited[1]
 
-        id = __return_id(raw_sql_splited)
+        where_condition = __return_where_condition(raw_sql_splited)
         
         columns = re.findall(r"\w* = '\w*'", sql, re.MULTILINE)
 
@@ -70,26 +72,30 @@ def sql_parser(sql: str) -> dict:
         mid_lang["action"] = "UPDATE"
         mid_lang["data"] = data_obj
         mid_lang["table_name"] = table_name
-        mid_lang["where"] = {"id": id}
+        mid_lang["where"] = where_condition
 
         return mid_lang
 
     if "DELETE" in sql:
-        id = __return_id(raw_sql_splited)
+        where_condition = __return_where_condition(raw_sql_splited)
 
         table_name = raw_sql_splited[raw_sql_splited.index("FROM") + 1]
 
         mid_lang["action"] = "DELETE"
         mid_lang["table_name"] = table_name
-        mid_lang["where"] = {"id": id}
+        mid_lang["where"] = where_condition
 
         return mid_lang
 
-def __return_id(sql_splited: list) -> str:
-    id_position = sql_splited.index("WHERE") + 3
-    id = sql_splited[id_position]
+def __return_where_condition(sql_splited: list) -> str:
+    where_condition_position = sql_splited.index("WHERE")
+    condition = sql_splited[where_condition_position]
 
-    if int(id) < 0 or int(id) == 0:
-        raise Exception("Id cannot be 0 or negative.")
+    try:
+        key = sql_splited[where_condition_position + 1]
+        value = sql_splited[where_condition_position + 3]
 
-    return id
+        return {key: value}
+    except:
+        return condition
+

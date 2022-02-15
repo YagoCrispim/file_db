@@ -1,14 +1,17 @@
-from FileDB import run
+from src.FileDB import run
 
 try:
     # SELECT's
-    sql = "SELECT * FROM dev"
+    sql = "SELECT * FROM test"
+    # sql = "SELECT * FROM dev"
     # sql = "SELECT (name, age) FROM dev WHERE id = 1"
-    # sql = "SELECT (grade) FROM dev WHERE id = 1"
-    # sql = "SELECT (name, age) FROM dev WHERE id = -1"
+    # sql = "SELECT (id, name, age, grade) FROM dev WHERE id = 2"
+    # sql = "SELECT * FROM dev WHERE id = 2"
+    # sql = "SELECT (grade) FROM dev WHERE name = 'Fulano'"
+    # sql = "SELECT (name, age) FROM dev WHERE name = 'Fulano'"
 
     # INSERT's
-    # sql = "insert into dev (name, age, grade) values ('Fulano','35','5'), ('Ciclano','40','10')"
+    # sql = "insert into dev (name, age, grade) values ('Fulano','35','5'), ('Fulano','40','10')"
 
     # DELETE's
     # sql = "DELETE FROM dev WHERE id = 29"
