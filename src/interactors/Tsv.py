@@ -2,11 +2,12 @@ from pathlib import Path
 from typing import List
 
 import pytest
+from config import db_folder
 
 class Tsv:
     def __init__(
         self,
-        location: str = "db/",
+        location: str = db_folder,
         extension: str = ".tsv",
     ):
         self.__location = location
