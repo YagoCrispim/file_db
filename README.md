@@ -44,8 +44,6 @@
       from FileDB import run
 
       users = run("select * from users")
-
-      print(users)
   ```
 
 - ### UPDATE
